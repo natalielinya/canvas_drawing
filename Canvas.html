@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Painting with Color, Thickness, and Eraser</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      #controls {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: 250px;
+        text-align: center;
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        z-index: 2; /* Place controls above canvas */
+      }
+
+      #colorPicker, #thicknessSlider, #eraserButton {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      canvas {
+        position: absolute;
+        top: 40px; /* Adjust the top position to make space for controls */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        border: 1px solid black;
+        z-index: 1; /* Place canvas below controls */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <input type="color" id="colorPicker" value="#000000">
+      <input type="range" id="thicknessSlider" min="1" max="50" value="10">
+      <button id="eraserButton">Eraser</button>
+    </div>
+    <canvas id="paintCanvas" width="800" height="600" style="border: 1px solid black;"></canvas>
+
+    <script>
+      const canvas = document.getElementById('paintCanvas');
+      const context = canvas.getContext('2d');
+      const colorPicker = document.getElementById('colorPicker');
+      const thicknessSlider = document.getElementById('thicknessSlider');
+      const eraserButton = document.getElementById('eraserButton');
+      let isDrawing = false;
+
+      function setEraserMode() {
+        colorPicker.value = "#ffffff"; // Set color to white for erasing
+        context.strokeStyle = "#ffffff";
+      }
+
+      function setDrawingMode() {
+        colorPicker.value = "#000000"; // Set color back to black for drawing
+        context.strokeStyle = colorPicker.value;
+      }
+
+      eraserButton.addEventListener('click', () => {
+        if (eraserButton.textContent === 'Eraser') {
+          setEraserMode();
+          eraserButton.textContent = 'Draw';
+        } else {
+          setDrawingMode();
+          eraserButton.textContent = 'Eraser';
+        }
+      });
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDrawing = true;
+        context.beginPath();
+        context.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+        context.lineWidth = thicknessSlider.value;
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (isDrawing) {
+          context.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+          context.stroke();
+        }
+      });
+
+      canvas.addEventListener('mouseup', () => {
+        isDrawing = false;
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        isDrawing = false;
+      });
+
+      colorPicker.addEventListener('input', () => {
+        context.strokeStyle = colorPicker.value;
+      });
+
+      thicknessSlider.addEventListener('input', () => {
+        context.lineWidth = thicknessSlider.value;
+      });
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 40; // Adjust for the space used by controls
+      });
+    </script>
+  </body>
+</html>
